@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Notifications</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>Notifications</h1>
+<div id="messages"></div>
+
+<script>
+    let stompClient;
+
+    // Connect to the WebSocket server
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Subscribe to the topic
+            stompClient.subscribe('/topic/messages', function (message) {
+                showMessage(message.body);
+            });
+        });
+    }
+
+    // Display received message on the page
+    function showMessage(message) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.innerText = message;
+        messagesDiv.appendChild(messageElement);
+    }
+
+    // Establish WebSocket connection on page load
+    window.onload = function () {
+        connect();
+    };
+</script>
+</body>
+</html>
